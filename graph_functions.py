@@ -54,7 +54,7 @@ def conductance(C, M):
     vol = min(c1.transpose()[c1_ind].sum(), c2.transpose()[c2_ind].sum())
     return 1.0*cross/vol
 
-def approxTriConductance(g, time=False):        
+def approxTriConductance(g, time=False):
     M = reweightEdgesByTri(g)
     C_tri = cluster(M)
     return conductance(C_tri, M)

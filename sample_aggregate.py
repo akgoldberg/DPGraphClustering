@@ -2,6 +2,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.stats import rankdata
 sns.set_style("whitegrid")
 sns.set_context("poster")
 
@@ -15,6 +16,7 @@ def hist_plot(sample_conds, actual_cond):
     plt.legend()
     plt.show()
 
+# partition graph g into k parts
 def partition(g, k=None):
     n = g.number_of_nodes()
     # if number of partitions not specified, use log of total number of nodes
@@ -33,3 +35,14 @@ def partition(g, k=None):
         subgraph = nx.convert_node_labels_to_integers(subgraph)
         subgraphs.append(subgraph)
     return subgraphs
+
+# release the median of X under eps-DP
+def dp_median(X, eps):
+    n = len(X)
+    # compute ranks of all elements
+    ranks = rankdata(X, method='min')
+    # generate distribution to sample from (using quality of -|rank - n/2|)
+    dist = np.array([np.exp(-1*eps*np.abs(r - (n/2))) for r in ranks])
+    dist = dist/sum(dist)
+    # randomly sample median
+    return np.random.choice(X, size=1, p=dist)[0]

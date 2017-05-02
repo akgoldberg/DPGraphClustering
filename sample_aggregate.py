@@ -7,12 +7,14 @@ sns.set_style("whitegrid")
 sns.set_context("poster")
 
 # plot histogram of conduction on samples
-def hist_plot(sample_conds, actual_cond):
+def hist_plot(sample_conds, actual_cond, eps=0.5):
     plt.hist(sample_conds, alpha=0.7, edgecolor='grey', linewidth=1.5)
-    plt.axvline(actual_cond, color='g', label='Conductance=' +
+    plt.axvline(actual_cond, color='r', label='Conductance=' +
                 str(actual_cond)[:6], alpha=0.8)
     med = np.median(sample_conds)
-    plt.axvline(med, color='r', label='Median=' + str(med)[:6], alpha=0.8)
+    dp_med = dp_median(sample_conds, eps)
+    plt.axvline(med, color='g', label='Median=' + str(med)[:6], alpha=0.8)
+    plt.axvline(dp_med, color='b', label='DP Med.=' + str(dp_med)[:6], alpha=0.5, ls='dashed')
     plt.legend()
     plt.show()
 
@@ -22,7 +24,6 @@ def partition(g, k=None):
     # if number of partitions not specified, use log of total number of nodes
     if k == None:
         k = int(np.log(n))
-        print "Using " + str(k) + " samples."
     # get random permutation of vertices
     perm = np.random.permutation(n)
     sz = int(1.0 * n / k)
@@ -46,3 +47,9 @@ def dp_median(X, eps):
     dist = dist/sum(dist)
     # randomly sample median
     return np.random.choice(X, size=1, p=dist)[0]
+
+# sample and aggregate g, with eps-DP and using function f, aggregator agg
+def sample_agg(g, eps, f, agg, k=None):
+    subgraphs = partition(g)
+    sample_conds = [f(sg) for sg in subgraphs]
+    return agg(sample_conds, eps)

@@ -117,7 +117,14 @@ def tri_sample_pp(num_vertices, p_in, p_out, k=None):
 
     return triCond, cond_samples
 
-""" Planted Partition Models to Try:
-    - 2, 5000, 0.05, 0.01
-    - 2, 10000, 0.02, 0.005
-"""
+# run edge-flip-shrink on graph g with adj matrix m and triangle reweighted matrix m-tri
+def run_EFS(g, M, M_tri, eps, iters=5):
+    edgeConds = []
+    triConds = []
+    for i in range(iters):
+        print "\n************ITER %d***************" % i
+        g_EFS = EdgeFlipShrink(g, eps)
+        edgeConds.append(approxEdgeConductance(g_EFS, orig=M))
+        triConds.append(approxTriConductance(g_EFS, orig=M_tri))
+    return edgeConds, triConds
+
